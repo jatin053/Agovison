@@ -178,28 +178,42 @@
                         </div>
                     </a>
 
-                    <nav class="public-site-nav">
-                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
-                        <a href="{{ route('home') }}#story">Story</a>
-                        <a href="{{ route('home') }}#products">Products</a>
-                        <a href="{{ route('home') }}#network">Network</a>
-                        <a href="{{ route('home') }}#news">News</a>
-                        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a>
-                        <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
-                    </nav>
+                    <button
+                        class="public-site-menu-toggle"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="publicSiteMenu"
+                        aria-label="Toggle navigation"
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
 
-                    <div class="public-site-actions">
-                        <form action="{{ route('locale.update') }}" method="POST" class="locale-form">
-                            @csrf
-                            <select name="locale" class="form-select form-select-sm locale-select" onchange="this.form.submit()">
-                                @foreach($availableLocales as $localeCode => $localeLabel)
-                                    <option value="{{ $localeCode }}" @selected($currentLocale === $localeCode)>{{ $localeLabel }}</option>
-                                @endforeach
-                            </select>
-                        </form>
-                        <a href="{{ route('buyer.marketplace.index') }}" class="btn btn-outline-light btn-sm">Marketplace</a>
-                        <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">{{ __('platform.nav.login') }}</a>
-                        <a href="{{ route('register') }}" class="btn btn-success btn-sm">Get Started</a>
+                    <div class="public-site-menu" id="publicSiteMenu">
+                        <nav class="public-site-nav" aria-label="Primary">
+                            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
+                            <a href="{{ route('home') }}#story">Story</a>
+                            <a href="{{ route('home') }}#products">Products</a>
+                            <a href="{{ route('home') }}#network">Network</a>
+                            <a href="{{ route('home') }}#news">News</a>
+                            <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">About</a>
+                            <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Contact</a>
+                        </nav>
+
+                        <div class="public-site-actions">
+                            <form action="{{ route('locale.update') }}" method="POST" class="locale-form">
+                                @csrf
+                                <select name="locale" class="form-select form-select-sm locale-select" onchange="this.form.submit()">
+                                    @foreach($availableLocales as $localeCode => $localeLabel)
+                                        <option value="{{ $localeCode }}" @selected($currentLocale === $localeCode)>{{ $localeLabel }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
+                            <a href="{{ route('buyer.marketplace.index') }}" class="btn btn-outline-light btn-sm">Marketplace</a>
+                            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">{{ __('platform.nav.login') }}</a>
+                            <a href="{{ route('register') }}" class="btn btn-success btn-sm">Get Started</a>
+                        </div>
                     </div>
                 </div>
             </header>

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initPublicHeader();
+    initPublicMenu();
     initThemeToggle();
     initToastAlerts();
     initMarketplaceFilters();
@@ -26,6 +27,39 @@ function initPublicHeader() {
 
     syncHeader();
     window.addEventListener('scroll', syncHeader, { passive: true });
+}
+
+function initPublicMenu() {
+    const headerInner = document.querySelector('.public-site-header__inner');
+    const toggle = document.querySelector('.public-site-menu-toggle');
+
+    if (!headerInner || !toggle) {
+        return;
+    }
+
+    const closeMenu = () => {
+        headerInner.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle.addEventListener('click', () => {
+        const isOpen = headerInner.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    headerInner.querySelectorAll('.public-site-menu a').forEach((link) => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 1199.98) {
+                closeMenu();
+            }
+        });
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1199.98) {
+            closeMenu();
+        }
+    });
 }
 
 function initThemeToggle() {

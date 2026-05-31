@@ -1235,9 +1235,9 @@ body.public-site-body textarea {
 }
 
 .public-site-header__inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
     gap: 1.25rem;
     padding: 1rem 1.35rem;
     border-radius: 999px;
@@ -1255,6 +1255,41 @@ body.public-site-body textarea {
 
 .public-site-body .public-brand {
     flex-shrink: 0;
+}
+
+.public-site-menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 1px solid rgba(0, 70, 81, 0.12);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--public-deep);
+    box-shadow: 0 10px 22px rgba(0, 70, 81, 0.08);
+}
+
+.public-site-menu-toggle span {
+    display: block;
+    width: 1rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.public-site-menu-toggle span + span {
+    margin-top: 0.22rem;
+}
+
+.public-site-menu {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
 }
 
 .public-site-body .brand-mark {
@@ -1287,6 +1322,37 @@ body.public-site-body textarea {
 .public-site-nav {
     justify-content: center;
     flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.public-site-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.public-site-actions {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+}
+
+.public-site-actions .locale-form,
+.public-site-actions .btn {
+    flex-shrink: 0;
+}
+
+.public-site-actions .locale-select {
+    min-width: 5.9rem;
+}
+
+.public-site-actions .btn {
+    min-height: 2.8rem;
+    padding-inline: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .public-site-nav a,
@@ -1295,6 +1361,7 @@ body.public-site-body textarea {
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
+    white-space: nowrap;
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
@@ -1969,13 +2036,50 @@ body.public-site-body textarea {
     }
 
     .public-site-header__inner {
+        grid-template-columns: minmax(0, 1fr) auto;
         border-radius: 28px;
     }
 
-    .public-site-nav {
-        order: 3;
+    .public-site-menu-toggle {
+        display: inline-flex;
+        flex-direction: column;
+    }
+
+    .public-site-header__inner.is-open .public-site-menu-toggle span:first-child {
+        transform: translateY(6px) rotate(45deg);
+    }
+
+    .public-site-header__inner.is-open .public-site-menu-toggle span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .public-site-header__inner.is-open .public-site-menu-toggle span:last-child {
+        transform: translateY(-6px) rotate(-45deg);
+    }
+
+    .public-site-menu {
+        grid-column: 1 / -1;
+        display: none;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 70, 81, 0.08);
+    }
+
+    .public-site-header__inner.is-open .public-site-menu {
+        display: grid;
+    }
+
+    .public-site-nav,
+    .public-site-actions {
         width: 100%;
         justify-content: flex-start;
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+
+    .public-site-actions {
+        gap: 0.7rem;
     }
 
     .agv-product-grid,
@@ -2004,6 +2108,27 @@ body.public-site-body textarea {
     .public-site-footer__inner {
         padding: 1.4rem;
         border-radius: 24px;
+    }
+
+    .public-site-nav {
+        display: grid;
+        gap: 0.45rem;
+    }
+
+    .public-site-nav a {
+        padding: 0.75rem 0.9rem;
+        border-radius: 16px;
+        background: rgba(50, 170, 72, 0.08);
+    }
+
+    .public-site-actions {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .public-site-actions .locale-form,
+    .public-site-actions .btn {
+        width: 100%;
     }
 
     .agv-hero__copy h1,
