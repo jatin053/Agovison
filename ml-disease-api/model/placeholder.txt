@@ -1,0 +1,5 @@
+Keep your trained model files in this folder later.
+Example files:
+- `model.pt`
+- `model.pkl`
+- `model.joblib`

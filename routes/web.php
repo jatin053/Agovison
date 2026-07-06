@@ -1,146 +1,105 @@
 <?php
 
-use App\Http\Controllers\Admin\CropController as AdminCropController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\Admin\ReportController as AdminReportController;
-use App\Http\Controllers\Admin\SettingController as AdminSettingController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\AuctionController;
-use App\Http\Controllers\Buyer\CartController;
-use App\Http\Controllers\Buyer\CheckoutController;
-use App\Http\Controllers\Buyer\FavoriteController;
-use App\Http\Controllers\Buyer\MarketplaceController;
-use App\Http\Controllers\Buyer\OrderController as BuyerOrderController;
-use App\Http\Controllers\Buyer\ReviewController;
-use App\Http\Controllers\CommunityController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Expert\DashboardController as ExpertDashboardController;
-use App\Http\Controllers\Expert\QuestionController as ExpertQuestionController;
-use App\Http\Controllers\Farmer\CropController as FarmerCropController;
-use App\Http\Controllers\Farmer\DashboardController as FarmerDashboardController;
-use App\Http\Controllers\Farmer\DiseaseReportController;
-use App\Http\Controllers\Farmer\IntelligenceController;
-use App\Http\Controllers\Farmer\OrderController as FarmerOrderController;
-use App\Http\Controllers\Farmer\QuestionController as FarmerQuestionController;
-use App\Http\Controllers\LocaleController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\DiseaseDetectionController as AdminDiseaseDetectionController;
+use App\Http\Controllers\Admin\FertilizerAdminController;
+use App\Http\Controllers\Admin\SoilReportController as AdminSoilReportController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\DashboardFeatureController;
+use App\Http\Controllers\DiseaseDetectionController;
+use App\Http\Controllers\FarmReportController;
+use App\Http\Controllers\FertilizerRecommendationController;
+use App\Http\Controllers\SoilProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [DashboardController::class, 'landing'])->name('home');
-Route::get('/about', [PublicPageController::class, 'about'])->name('about');
-Route::get('/contact', [PublicPageController::class, 'contact'])->name('contact');
-Route::post('/contact', [PublicPageController::class, 'storeContact'])->name('contact.store');
-Route::get('/weather-intelligence', [PublicPageController::class, 'weather'])->name('weather.index');
-Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
-Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions.index');
-Route::get('/auctions/{auction}', [AuctionController::class, 'show'])->name('auctions.show');
-Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('buyer.marketplace.index');
-Route::get('/marketplace/{crop:slug}', [MarketplaceController::class, 'show'])->name('buyer.marketplace.show');
-Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
 
-Route::get('/dashboard', [DashboardController::class, 'redirect'])
-    ->middleware(['auth', 'verified', 'active'])
-    ->name('dashboard');
+Route::view('/about', 'about')->name('about');
+Route::view('/features', 'features')->name('features');
+Route::view('/services', 'services')->name('services');
+Route::view('/contact', 'contact')->name('contact');
+Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
 
-Route::middleware(['auth', 'verified', 'active'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/notifications/latest', [NotificationController::class, 'latest'])->name('notifications.latest');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
-    Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
-    Route::post('/community/posts/{post}/comments', [CommunityController::class, 'comment'])->name('community.comments.store');
-    Route::post('/community/posts/{post}/like', [CommunityController::class, 'togglePostLike'])->name('community.posts.like');
-    Route::post('/community/comments/{comment}/like', [CommunityController::class, 'toggleCommentLike'])->name('community.comments.like');
-    Route::post('/auctions', [AuctionController::class, 'store'])->middleware('role:Farmer')->name('auctions.store');
-    Route::post('/auctions/{auction}/bids', [AuctionController::class, 'bid'])->middleware('role:Buyer')->name('auctions.bid');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
 });
 
-Route::prefix('admin')
-    ->as('admin.')
-    ->middleware(['auth', 'verified', 'active', 'role:Admin'])
-    ->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-        Route::patch('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
-        Route::patch('/users/{user}/toggle-block', [AdminUserController::class, 'toggleBlock'])->name('users.toggle-block');
-        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
 
-        Route::get('/crops', [AdminCropController::class, 'index'])->name('crops.index');
-        Route::patch('/crops/{crop}/approve', [AdminCropController::class, 'approve'])->name('crops.approve');
-        Route::patch('/crops/{crop}/reject', [AdminCropController::class, 'reject'])->name('crops.reject');
-        Route::delete('/crops/{crop}', [AdminCropController::class, 'destroy'])->name('crops.destroy');
+Route::middleware('auth')->group(function () {
+    Route::view('/dashboard', 'dashboard_ui.index')->name('dashboard');
+    Route::get('/dashboard/crop-recommendation', [DashboardFeatureController::class, 'crop'])->name('dashboard.crop');
+    Route::post('/dashboard/crop-recommendation', [DashboardFeatureController::class, 'storeCrop'])->name('dashboard.crop.store');
+    Route::get('/dashboard/yield-prediction', [DashboardFeatureController::class, 'yield'])->name('dashboard.yield');
+    Route::post('/dashboard/yield-prediction', [DashboardFeatureController::class, 'storeYield'])->name('dashboard.yield.store');
+    Route::get('/dashboard/disease-detection', [DiseaseDetectionController::class, 'index'])->name('dashboard.disease');
+    Route::post('/dashboard/disease-detection', [DiseaseDetectionController::class, 'store'])->name('dashboard.disease.store');
+    Route::get('/dashboard/disease-detection/history', [DiseaseDetectionController::class, 'history'])->name('dashboard.disease.history');
+    Route::get('/dashboard/disease-detection/result/{diseaseDetection}', [DiseaseDetectionController::class, 'result'])->name('dashboard.disease.result');
+    Route::get('/dashboard/disease-detection/{diseaseDetection}', [DiseaseDetectionController::class, 'show'])->name('dashboard.disease.show');
+    Route::delete('/dashboard/disease-detection/{diseaseDetection}', [DiseaseDetectionController::class, 'destroy'])->name('dashboard.disease.destroy');
+    Route::get('/dashboard/fertilizer-recommendation', [FertilizerRecommendationController::class, 'index'])->name('dashboard.fertilizer');
+    Route::post('/dashboard/fertilizer-recommendation', [FertilizerRecommendationController::class, 'store'])->name('dashboard.fertilizer.store');
+    Route::post('/api/fertilizer-recommendation', [FertilizerRecommendationController::class, 'api'])->middleware('throttle:30,1')->name('api.fertilizer.recommendation');
+    Route::get('/dashboard/fertilizer-recommendation/history', [FertilizerRecommendationController::class, 'history'])->name('dashboard.fertilizer.history');
+    Route::get('/dashboard/fertilizer-recommendation/result/{fertilizerRecommendation}', [FertilizerRecommendationController::class, 'result'])->name('dashboard.fertilizer.result');
+    Route::get('/dashboard/fertilizer-recommendation/{fertilizerRecommendation}', [FertilizerRecommendationController::class, 'show'])->name('dashboard.fertilizer.show');
+    Route::delete('/dashboard/fertilizer-recommendation/{fertilizerRecommendation}', [FertilizerRecommendationController::class, 'destroy'])->name('dashboard.fertilizer.destroy');
+    Route::get('/dashboard/weather-forecast', [DashboardFeatureController::class, 'weather'])->name('dashboard.weather');
+    Route::post('/dashboard/weather-forecast', [DashboardFeatureController::class, 'storeWeather'])->name('dashboard.weather.store');
+    Route::post('/dashboard/location/weather', [DashboardFeatureController::class, 'lookupWeather'])->name('dashboard.location.weather');
+    Route::post('/dashboard/location/reverse', [DashboardFeatureController::class, 'reverseLocation'])->name('dashboard.location.reverse');
+    Route::get('/dashboard/soil', [SoilProfileController::class, 'index'])->name('dashboard.soil');
+    Route::get('/dashboard/soil/create', [SoilProfileController::class, 'create'])->name('dashboard.soil.create');
+    Route::post('/dashboard/soil', [SoilProfileController::class, 'store'])->name('dashboard.soil.store');
+    Route::post('/dashboard/soil/estimate', [SoilProfileController::class, 'estimate'])->name('dashboard.soil.estimate');
+    Route::get('/dashboard/soil/history', [SoilProfileController::class, 'history'])->name('dashboard.soil.history');
+    Route::get('/dashboard/soil/{soilProfile}', [SoilProfileController::class, 'show'])->name('dashboard.soil.show');
+    Route::get('/dashboard/soil/{soilProfile}/edit', [SoilProfileController::class, 'edit'])->name('dashboard.soil.edit');
+    Route::put('/dashboard/soil/{soilProfile}', [SoilProfileController::class, 'update'])->name('dashboard.soil.update');
+    Route::delete('/dashboard/soil/{soilProfile}', [SoilProfileController::class, 'destroy'])->name('dashboard.soil.destroy');
+    Route::view('/dashboard/history', 'dashboard_ui.history')->name('dashboard.history');
+    Route::get('/dashboard/reports', [FarmReportController::class, 'index'])->name('dashboard.reports');
+    Route::get('/dashboard/reports/export/csv', [FarmReportController::class, 'csv'])->name('dashboard.reports.csv');
+    Route::get('/dashboard/reports/export/pdf', [FarmReportController::class, 'pdf'])->name('dashboard.reports.pdf');
+    Route::view('/dashboard/saved-results', 'dashboard_ui.saved')->name('dashboard.saved');
+    Route::view('/dashboard/profile', 'dashboard_ui.profile')->name('dashboard.profile');
+    Route::view('/dashboard/settings', 'dashboard_ui.settings')->name('dashboard.settings');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
 
-        Route::get('/orders/export/excel', [AdminOrderController::class, 'export'])->name('orders.export');
-        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-        Route::patch('/orders/{order}', [AdminOrderController::class, 'update'])->name('orders.update');
-
-        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
-
-        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [AdminSettingController::class, 'store'])->name('settings.store');
-        Route::patch('/settings/{setting}', [AdminSettingController::class, 'update'])->name('settings.update');
-    });
-
-Route::prefix('farmer')
-    ->as('farmer.')
-    ->middleware(['auth', 'verified', 'active', 'role:Farmer'])
-    ->group(function () {
-        Route::get('/dashboard', [FarmerDashboardController::class, 'index'])->name('dashboard');
-
-        Route::get('/crops', [FarmerCropController::class, 'index'])->name('crops.index');
-        Route::get('/crops/create', [FarmerCropController::class, 'create'])->name('crops.create');
-        Route::post('/crops', [FarmerCropController::class, 'store'])->name('crops.store');
-        Route::get('/crops/{crop}/edit', [FarmerCropController::class, 'edit'])->name('crops.edit');
-        Route::put('/crops/{crop}', [FarmerCropController::class, 'update'])->name('crops.update');
-        Route::delete('/crops/{crop}', [FarmerCropController::class, 'destroy'])->name('crops.destroy');
-
-        Route::get('/orders', [FarmerOrderController::class, 'index'])->name('orders.index');
-
-        Route::get('/disease-reports', [DiseaseReportController::class, 'index'])->name('disease-reports.index');
-        Route::post('/disease-reports', [DiseaseReportController::class, 'store'])->name('disease-reports.store');
-        Route::get('/intelligence', [IntelligenceController::class, 'index'])->name('intelligence.index');
-        Route::post('/intelligence/recommend', [IntelligenceController::class, 'recommend'])->name('intelligence.recommend');
-        Route::post('/soil-reports', [IntelligenceController::class, 'storeSoilReport'])->name('soil-reports.store');
-
-        Route::get('/questions', [FarmerQuestionController::class, 'index'])->name('questions.index');
-        Route::post('/questions', [FarmerQuestionController::class, 'store'])->name('questions.store');
-    });
-
-Route::prefix('buyer')
-    ->as('buyer.')
-    ->middleware(['auth', 'verified', 'active', 'role:Buyer'])
-    ->group(function () {
-        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-        Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-        Route::patch('/cart/{cart}', [CartController::class, 'update'])->name('cart.update');
-        Route::delete('/cart/{cart}', [CartController::class, 'destroy'])->name('cart.destroy');
-
-        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-        Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-
-        Route::get('/orders', [BuyerOrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [BuyerOrderController::class, 'show'])->name('orders.show');
-        Route::get('/orders/{order}/invoice', [BuyerOrderController::class, 'invoice'])->name('orders.invoice');
-        Route::get('/orders/{order}/invoice/pdf', [BuyerOrderController::class, 'downloadPdf'])->name('orders.invoice.pdf');
-
-        Route::post('/favorites/{crop}', [FavoriteController::class, 'store'])->name('favorites.store');
-        Route::delete('/favorites/{crop}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
-
-        Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-    });
-
-Route::prefix('expert')
-    ->as('expert.')
-    ->middleware(['auth', 'verified', 'active', 'role:Expert'])
-    ->group(function () {
-        Route::get('/dashboard', [ExpertDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/questions', [ExpertQuestionController::class, 'index'])->name('questions.index');
-        Route::post('/questions/{question}/answer', [ExpertQuestionController::class, 'answer'])->name('questions.answer');
-    });
-
-require __DIR__.'/auth.php';
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
+    Route::get('/contact-messages', [AdminDashboardController::class, 'contactMessages'])->name('contact-messages');
+    Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
+    Route::get('/reports/{type}/{id}', [AdminDashboardController::class, 'reportShow'])->name('reports.show');
+    Route::get('/disease-detections', [AdminDiseaseDetectionController::class, 'index'])->name('disease.index');
+    Route::get('/disease-detections/export/csv', [AdminDiseaseDetectionController::class, 'csv'])->name('disease.csv');
+    Route::get('/disease-detections/{diseaseDetection}', [AdminDiseaseDetectionController::class, 'show'])->name('disease.show');
+    Route::delete('/disease-detections/{diseaseDetection}', [AdminDiseaseDetectionController::class, 'destroy'])->name('disease.destroy');
+    Route::get('/soil-reports', [AdminSoilReportController::class, 'index'])->name('soil.index');
+    Route::get('/soil-reports/export/csv', [AdminSoilReportController::class, 'csv'])->name('soil.csv');
+    Route::get('/soil-reports/{soilProfile}', [AdminSoilReportController::class, 'show'])->name('soil.show');
+    Route::patch('/soil-reports/{soilProfile}', [AdminSoilReportController::class, 'update'])->name('soil.update');
+    Route::delete('/soil-reports/{soilProfile}', [AdminSoilReportController::class, 'destroy'])->name('soil.destroy');
+    Route::get('/fertilizers', [FertilizerAdminController::class, 'fertilizers'])->name('fertilizer.master');
+    Route::post('/fertilizers', [FertilizerAdminController::class, 'storeFertilizer'])->name('fertilizer.master.store');
+    Route::put('/fertilizers/{fertilizer}', [FertilizerAdminController::class, 'updateFertilizer'])->name('fertilizer.master.update');
+    Route::patch('/fertilizers/{fertilizer}/status', [FertilizerAdminController::class, 'deactivateFertilizer'])->name('fertilizer.master.status');
+    Route::get('/fertilizer-rules', [FertilizerAdminController::class, 'rules'])->name('fertilizer.rules');
+    Route::post('/fertilizer-rules', [FertilizerAdminController::class, 'storeRule'])->name('fertilizer.rules.store');
+    Route::put('/fertilizer-rules/{fertilizerRule}', [FertilizerAdminController::class, 'updateRule'])->name('fertilizer.rules.update');
+    Route::get('/fertilizer-recommendations', [FertilizerAdminController::class, 'reports'])->name('fertilizer.reports');
+    Route::get('/fertilizer-recommendations/export/csv', [FertilizerAdminController::class, 'csv'])->name('fertilizer.reports.csv');
+    Route::get('/fertilizer-recommendations/{fertilizerRecommendation}', [FertilizerAdminController::class, 'showReport'])->name('fertilizer.reports.show');
+    Route::patch('/fertilizer-recommendations/{fertilizerRecommendation}', [FertilizerAdminController::class, 'reviewReport'])->name('fertilizer.reports.review');
+    Route::delete('/fertilizer-recommendations/{fertilizerRecommendation}', [FertilizerAdminController::class, 'destroyReport'])->name('fertilizer.reports.destroy');
+    Route::get('/settings', [AdminDashboardController::class, 'settings'])->name('settings');
+});

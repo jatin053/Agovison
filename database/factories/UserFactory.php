@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -27,17 +27,6 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'phone' => fake()->numerify('98########'),
-            'avatar' => null,
-            'address' => fake()->streetAddress(),
-            'city' => fake()->city(),
-            'state' => fake()->state(),
-            'country' => 'India',
-            'bio' => fake()->sentence(),
-            'status' => 'active',
-            'is_blocked' => false,
-            'blocked_at' => null,
-            'last_seen_at' => now(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -52,25 +41,5 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
-    }
-
-    public function admin(): static
-    {
-        return $this->afterCreating(static fn (User $user) => $user->assignRole('Admin'));
-    }
-
-    public function farmer(): static
-    {
-        return $this->afterCreating(static fn (User $user) => $user->assignRole('Farmer'));
-    }
-
-    public function buyer(): static
-    {
-        return $this->afterCreating(static fn (User $user) => $user->assignRole('Buyer'));
-    }
-
-    public function expert(): static
-    {
-        return $this->afterCreating(static fn (User $user) => $user->assignRole('Expert'));
     }
 }
